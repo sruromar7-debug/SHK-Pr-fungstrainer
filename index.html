@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omar Meister App - SHK Prüfungstrainer</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #0284c7;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Category Filter */
+        .filter-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: #e0f2fe;
+            color: var(--secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            padding-right: 5rem;
+        }
+
+        .card p {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .formula-box {
+            background: #f1f5f9;
+            border-left: 4px solid var(--secondary);
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-family: monospace;
+            font-size: 0.95rem;
+        }
+
+        /* Interactive inputs */
+        .interactive-area {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"], input[type="number"], textarea, select {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        button.action-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button.action-btn:hover {
+            opacity: 0.9;
+        }
+
+        button.secondary-btn {
+            background: #e2e8f0;
+            color: var(--text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+
+        .feedback {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        /* Formelsammlung Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Editor Form */
+        .editor-form {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .form-row {
+            margin-bottom: 1rem;
+        }
+
+        .form-row label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .card-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Omar Meister App</h1>
+        <p>Interaktiver Prüfungstrainer für Anlagenmechaniker SHK</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('trainer')">Prüfungstrainer</button>
+            <button class="tab-btn" onclick="switchTab('formulas')">Formelsammlung & Grenzwerte</button>
+            <button class="tab-btn" onclick="switchTab('editor')">Aufgaben bearbeiten & neu</button>
+        </div>
+
+        <!-- TRAINER TAB -->
+        <div id="trainer" class="tab-content active">
+            <div class="filter-container">
+                <button class="filter-btn active" onclick="filterCategory('all')">Alle Themen</button>
+                <button class="filter-btn" onclick="filterCategory('Abgasmessung')">Abgasmessung & BImSchV</button>
+                <button class="filter-btn" onclick="filterCategory('Heizung')">Heizkörper & Hydraulik</button>
+                <button class="filter-btn" onclick="filterCategory('Lüftung')">Wohnraumlüftung</button>
+                <button class="filter-btn" onclick="filterCategory('MAG')">MAG-Auslegung</button>
+            </div>
+            <div id="questions-container"></div>
+        </div>
+
+        <!-- FORMELN TAB -->
+        <div id="formulas" class="tab-content">
+            <div class="card">
+                <h3>Zentrale Formeln & Konstanten für die SHK-Prüfung</h3>
+                <p>Übersicht der wichtigsten Berechnungen:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Thema</th>
+                            <th>Formel / Zusammenhang</th>
+                            <th>Hinweise / Einheiten</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Massenstrom ($\dot{m}$)</strong></td>
+                            <td>$\dot{m} = \frac{\dot{Q}_{HK}}{c \cdot \Delta T}$</td>
+                            <td>$c = 1,163 \text{ Wh/(kg}\cdot\text{K)}$ (Wasser)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Luftverhältniszahl ($\lambda$)</strong></td>
+                            <td>$\lambda = \frac{\text{CO}_{2,\text{max}}}{\text{CO}_2}$</td>
+                            <td>Verhältnis max. zu gemessenem $\text{CO}_2$</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Luftüberschuss ($n$)</strong></td>
+                            <td>$n = (\lambda - 1) \cdot 100\%$</td>
+                            <td>Angabe in Prozent</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MAG Vordruck ($p_0$)</strong></td>
+                            <td>$p_0 = \frac{H}{10} + 0,2\text{ bar}$</td>
+                            <td>$H$ = statische Höhe in Metern</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MAG Mindest-Nennvolumen</strong></td>
+                            <td>$V_{n,\text{min}} = (V_e + V_v) \cdot \frac{p_e + 1}{p_e - p_0}$</td>
+                            <td>Ausdehnung $V_e = V_A \cdot \frac{e}{100}$</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ventilator-Leistung</strong></td>
+                            <td>$P = \frac{\dot{V} \cdot \Delta p_v}{3600 \cdot \eta_v}$</td>
+                            <td>$\dot{V}$ in $\text{m}^3\text{h}$, $\Delta p_v$ in Pa</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>CO-Grenzwerte (Kohlenstoffmonoxid)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Messwert</th>
+                            <th>Maßnahme / Beurteilung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0 – 500 ppm</td><td>Keine Maßnahmen notwendig</td></tr>
+                        <tr><td>501 – 1000 ppm</td><td>Wartung erforderlich / Störungsanzeige</td></tr>
+                        <tr><td>ab 1000 ppm</td><td>Gefahr! Anlage sofort stilllegen</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- EDITOR TAB -->
+        <div id="editor" class="tab-content">
+            <div class="editor-form">
+                <h3 id="editor-title" style="margin-bottom: 1rem; color: var(--primary);">Neue Aufgabe erstellen</h3>
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-row">
+                    <label>Kategorie:</label>
+                    <select id="new-cat">
+                        <option value="Abgasmessung">Abgasmessung & BImSchV</option>
+                        <option value="Heizung">Heizkörper & Hydraulik</option>
+                        <option value="Lüftung">Wohnraumlüftung</option>
+                        <option value="MAG">MAG-Auslegung</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Fragetitel:</label>
+                    <input type="text" id="new-title" placeholder="z. B. Aufgabe 5: Luftverhältniszahl berechnen">
+                </div>
+                <div class="form-row">
+                    <label>Fragetext / Situationsbeschreibung:</label>
+                    <textarea id="new-text" rows="3" placeholder="Beschreibung der Aufgabe..."></textarea>
+                </div>
+                <div class="form-row">
+                    <label>Formel & Hilfestellung:</label>
+                    <input type="text" id="new-formula" placeholder="z. B. lambda = CO2,max / CO2">
+                </div>
+                <div class="form-row">
+                    <label>Aufgabentyp:</label>
+                    <select id="new-type" onchange="toggleAnswerFields()">
+                        <option value="calc">Rechenaufgabe (mit numerischem Wert)</option>
+                        <option value="text">Frage / Textantwort (Freitext)</option>
+                    </select>
+                </div>
+                <div class="form-row" id="row-calc-answer">
+                    <label>Muster-Lösungswert (Zahl):</label>
+                    <input type="number" step="0.01" id="new-answer-val" placeholder="1.37">
+                </div>
+                <div class="form-row" id="row-text-answer" style="display:none;">
+                    <label>Muster-Antwort (Schlüsselwörter / Text):</label>
+                    <input type="text" id="new-answer-text" placeholder="BImSchV">
+                </div>
+                <div class="form-row">
+                    <label>Vollständiger Lösungsweg / Erklärung:</label>
+                    <textarea id="new-solution" rows="3" placeholder="Ausführliche Erklärung..."></textarea>
+                </div>
+                <button class="action-btn" onclick="saveTask()">Aufgabe speichern</button>
+                <button class="secondary-btn" onclick="resetEditor()" style="margin-top: 0.5rem;">Zurücksetzen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Standard-Aufgabensatz basierend auf den Prüfungsunterlagen
+        const defaultTasks = [
+            {
+                id: 1,
+                category: "Abgasmessung",
+                title: "Gesetzliche Bestimmung Abgasmessung",
+                text: "Welche gesetzliche Bestimmung verpflichtet den Betreiber von Feuerungsanlagen dazu, in regelmäßigen Abständen Abgasmessungen durchführen zu lassen?",
+                formula: "Rechtsgrundlage für die Immissionsschutz-Messung bei Kleinfeuerungsanlagen.",
+                type: "text",
+                expectedText: "bimschv",
+                solution: "Lösung: 1. BImSchV (Verordnung über kleine und mittlere Feuerungsanlagen)."
+            },
+            {
+                id: 2,
+                category: "Abgasmessung",
+                title: "Berechnung Luftverhältniszahl & Luftüberschuss",
+                text: "Berechnen Sie die Luftverhältniszahl (lambda) bei einem CO2,max von 8,67% und einem gemessenen CO2-Gehalt von 11,9% (bzw. variierenden Werten).",
+                formula: "lambda = CO2,max / CO2  |  n = (lambda - 1) * 100%",
+                type: "calc",
+                baseVal1: 8.67,
+                baseVal2: 11.9,
+                calcFn: (v1, v2) => Number((v1 / v2).toFixed(2)),
+                unit: "",
+                solution: "lambda = 8,67% / 11,9% = 0,73 (bzw. umgekehrt je nach Messwertverhältnis). Luftüberschuss n = (lambda - 1) * 100%."
+            },
+            {
+                id: 3,
+                category: "Heizung",
+                title: "Massenstrom durch den Heizkörper berechnen",
+                text: "Berechnen Sie den Massenstrom durch einen Heizkörper mit einer Wärmeleistung von Q_HK = 281 W und einer Temperaturspreizung Delta T = 10 K (Vorlauf 55°C, Rücklauf 45°C). Spez. Wärmekapazität c = 1,163 Wh/(kg*K).",
+                formula: "m_punkt = Q_HK / (c * Delta T)",
+                type: "calc",
+                baseVal1: 281,
+                baseVal2: 10,
+                calcFn: (q, dt) => Number((q / (1.163 * dt)).toFixed(2)),
+                unit: "kg/h",
+                solution: "m_punkt = 281 W / (1,163 Wh/(kg*K) * 10 K) = 24,16 kg/h."
+            },
+            {
+                id: 4,
+                category: "Heizung",
+                title: "Vorteile von Thermostatventilen mit Voreinstellung",
+                text: "Nennen Sie 3 wesentliche Vorteile, die eine Voreinstellung am Thermostatventil bietet.",
+                formula: "Hydraulischer Abgleich / Volumenstrom-Begrenzung",
+                type: "text",
+                expectedText: "abgleich",
+                solution: "1. Hydraulischer Abgleich aller Heizkörper, 2. Vermeidung von Fließgeräuschen, 3. Energieeinsparung durch bedarfsgerechte Wasserverteilung."
+            },
+            {
+                id: 5,
+                category: "Lüftung",
+                title: "Leistungsaufnahme von Ventilatoren",
+                text: "Berechnen Sie die Leistungsaufnahme eines Ventilators bei einem Zuluftvolumenstrom von 140 m³/h, einem Ventilatordruck von 120 Pa und einem Wirkungsgrad eta_v von 75%.",
+                formula: "P = (V_punkt * Delta p_v) / (3600 * eta_v)",
+                type: "calc",
+                baseVal1: 140,
+                baseVal2: 120,
+                calcFn: (v, dp) => Number(((v * dp) / (3600 * 0.75)).toFixed(2)),
+                unit: "W",
+                solution: "P = (140 m³/h * 120 Pa) / (3600 * 0,75) = 6,22 W."
+            },
+            {
+                id: 6,
+                category: "MAG",
+                title: "Bestimmung des MAG Vordrucks",
+                text: "Wie bestimmen Sie den Vordruck p_0 eines Membran-Druckausdehnungsgefäßes, wenn die statische Höhe H der Anlage 12 m beträgt?",
+                formula: "p_0 = (H / 10) + 0,2 bar",
+                type: "calc",
+                baseVal1: 12,
+                calcFn: (h) => Number(((h / 10) + 0.2).toFixed(2)),
+                unit: "bar",
+                solution: "p_0 = (12 m / 10) + 0,2 bar = 1,4 bar."
+            }
+        ];
+
+        let tasks = JSON.parse(localStorage.getItem('omar_meister_tasks')) || defaultTasks;
+        let currentFilter = 'all';
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            if(tabId === 'trainer') renderTasks();
+        }
+
+        function filterCategory(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            const filtered = currentFilter === 'all' ? tasks : tasks.filter(t => t.category === currentFilter);
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="card"><p>Keine Aufgaben in dieser Kategorie gefunden.</p></div>`;
+                return;
+            }
+
+            filtered.forEach((task, index) => {
+                const realIndex = tasks.findIndex(t => t.id === task.id);
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                let interactiveHtml = '';
+                if(task.type === 'calc') {
+                    // Zufallswerte generieren falls gewünscht oder Standardwerte nutzen
+                    const v1 = task.currVal1 !== undefined ? task.currVal1 : task.baseVal1;
+                    const v2 = task.currVal2 !== undefined ? task.currVal2 : task.baseVal2;
+                    const correctAns = task.calcFn ? task.calcFn(v1, v2) : task.answerVal;
+
+                    interactiveHtml = `
+                        <div class="interactive-area">
+                            <p><strong>Aktuelle Werte:</strong> A = ${v1}${task.baseVal2 !== undefined ? ', B = ' + v2 : ''}</p>
+                            <div class="input-group">
+                                <input type="number" step="0.01" id="ans-${realIndex}" placeholder="Dein Ergebnis (${task.unit || ''})">
+                                <button class="action-btn" onclick="checkCalc(${realIndex}, ${correctAns})">Prüfen</button>
+                                <button class="secondary-btn" onclick=" randomizeTask(${realIndex})">Neue Zahlen</button>
+                            </div>
+                            <div id="feedback-${realIndex}" class="feedback"></div>
+                        </div>
+                    `;
+                } else {
+                    interactiveHtml = `
+                        <div class="interactive-area">
+                            <div class="input-group">
+                                <input type="text" id="ans-text-${realIndex}" placeholder="Deine Antwort eingeben...">
+                                <button class="action-btn" onclick="checkText(${realIndex})">Prüfen</button>
+                            </div>
+                            <div id="feedback-text-${realIndex}" class="feedback"></div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="card-badge">${task.category}</div>
+                    <h3>${task.title}</h3>
+                    <p>${task.text}</p>
+                    <div class="formula-box"><strong>Formel / Ansatz:</strong> ${task.formula}</div>
+                    ${interactiveHtml}
+                    <div class="card-actions">
+                        <button class="secondary-btn" onclick="editTask(${realIndex})">Bearbeiten</button>
+                        <button class="secondary-btn" style="color: var(--error);" onclick="deleteTask(${realIndex})">Löschen</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function checkCalc(index, correctVal) {
+            const inputVal = parseFloat(document.getElementById(`ans-${index}`).value);
+            const feedbackEl = document.getElementById(`feedback-${index}`);
+            
+            if(isNaN(inputVal)) {
+                feedbackEl.className = "feedback incorrect";
+                feedbackEl.innerText = "Bitte gib eine Zahl ein!";
+                return;
+            }
+
+            // 2.5% Toleranz für Rundungen
+            const tolerance = Math.abs(correctVal * 0.025);
+            if(Math.abs(inputVal - correctVal) <= Math.max(tolerance, 0.05)) {
+                feedbackEl.className = "feedback correct";
+                feedbackEl.innerText = `Richtig! Perfekt gerechnet. (Musterlösung: ${correctVal} ${tasks[index].unit || ''})\n${tasks[index].solution}`;
+            } else {
+                feedbackEl.className = "feedback incorrect";
+                feedbackEl.innerText = `Leider falsch. Eingegeben: ${inputVal}, Richtig wäre ca. ${correctVal} ${tasks[index].unit || ''}.\nLösungsweg: ${tasks[index].solution}`;
+            }
+        }
+
+        function checkText(index) {
+            const textVal = document.getElementById(`ans-text-${index}`).value.toLowerCase();
+            const feedbackEl = document.getElementById(`feedback-text-${index}`);
+            const expected = tasks[index].expectedText.toLowerCase();
+
+            if(textVal.includes(expected) || textVal.length > 3) {
+                feedbackEl.className = "feedback correct";
+                feedbackEl.innerText = `Guter Ansatz / Korrekt!\n${tasks[index].solution}`;
+            } else {
+                feedbackEl.className = "feedback incorrect";
+                feedbackEl.innerText = `Nicht ganz vollständig.\n${tasks[index].solution}`;
+            }
+        }
+
+        function randomizeTask(index) {
+            const t = tasks[index];
+            if(t.baseVal1 !== undefined) {
+                t.currVal1 = Number((t.baseVal1 * (0.8 + Math.random() * 0.4)).toFixed(1));
+                if(t.baseVal2 !== undefined) {
+                    t.currVal2 = Number((t.baseVal2 * (0.8 + Math.random() * 0.4)).toFixed(1));
+                }
+                renderTasks();
+            }
+        }
+
+        function toggleAnswerFields() {
+            const type = document.getElementById('new-type').value;
+            if(type === 'calc') {
+                document.getElementById('row-calc-answer').style.display = 'block';
+                document.getElementById('row-text-answer').style.display = 'none';
+            } else {
+                document.getElementById('row-calc-answer').style.display = 'none';
+                document.getElementById('row-text-answer').style.display = 'block';
+            }
+        }
+
+        function saveTask() {
+            const editIndex = parseInt(document.getElementById('edit-index').value);
+            const category = document.getElementById('new-cat').value;
+            const title = document.getElementById('new-title').value;
+            const text = document.getElementById('new-text').value;
+            const formula = document.getElementById('new-formula').value;
+            const type = document.getElementById('new-type').value;
+            const solution = document.getElementById('new-solution').value;
+
+            if(!title || !text) {
+                alert('Bitte Titel und Fragetext ausfüllen!');
+                return;
+            }
+
+            let newTask = {
+                id: editIndex === -1 ? Date.now() : tasks[editIndex].id,
+                category,
+                title,
+                text,
+                formula,
+                type,
+                solution
+            };
+
+            if(type === 'calc') {
+                const val = parseFloat(document.getElementById('new-answer-val').value) || 10;
+                newTask.baseVal1 = val;
+                newTask.calcFn = (v) => v;
+                newTask.unit = "";
+            } else {
+                newTask.expectedText = document.getElementById('new-answer-text').value || "prüfung";
+            }
+
+            if(editIndex === -1) {
+                tasks.push(newTask);
+            } else {
+                tasks[editIndex] = newTask;
+            }
+
+            localStorage.setItem('omar_meister_tasks', JSON.stringify(tasks));
+            resetEditor();
+            switchTab('trainer');
+        }
+
+        function editTask(index) {
+            const t = tasks[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('new-cat').value = t.category;
+            document.getElementById('new-title').value = t.title;
+            document.getElementById('new-text').value = t.text;
+            document.getElementById('new-formula').value = t.formula;
+            document.getElementById('new-type').value = t.type;
+            document.getElementById('new-solution').value = t.solution;
+            
+            toggleAnswerFields();
+            if(t.type === 'calc') {
+                document.getElementById('new-answer-val').value = t.baseVal1 || '';
+            } else {
+                document.getElementById('new-answer-text').value = t.expectedText || '';
+            }
+
+            document.getElementById('editor-title').innerText = "Aufgabe bearbeiten";
+            switchTab('editor');
+        }
+
+        function deleteTask(index) {
+            if(confirm('Möchtest du diese Aufgabe wirklich löschen?')) {
+                tasks.splice(index, 1);
+                localStorage.setItem('omar_meister_tasks', JSON.stringify(tasks));
+                renderTasks();
+            }
+        }
+
+        function resetEditor() {
+            document.getElementById('edit-index').value = -1;
+            document.getElementById('new-title').value = '';
+            document.getElementById('new-text').value = '';
+            document.getElementById('new-formula').value = '';
+            document.getElementById('new-answer-val').value = '';
+            document.getElementById('new-answer-text').value = '';
+            document.getElementById('new-solution').value = '';
+            document.getElementById('editor-title').innerText = "Neue Aufgabe erstellen";
+        }
+
+        // Initialisierung beim Laden
+        renderTasks();
+    </script>
+</body>
+</html>
